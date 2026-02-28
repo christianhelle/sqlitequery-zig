@@ -6,9 +6,12 @@ pub fn build(b: *std.Build) void {
 
     const exe = b.addExecutable(.{
         .name = "sqlitequery",
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        }),
     });
 
     exe.linkSystemLibrary("sqlite3");
@@ -19,7 +22,6 @@ pub fn build(b: *std.Build) void {
     exe.linkSystemLibrary("dl");
     exe.linkSystemLibrary("rt");
     exe.linkSystemLibrary("X11");
-    exe.linkLibC();
     exe.addIncludePath(.{ .cwd_relative = "/usr/local/include" });
     exe.addLibraryPath(.{ .cwd_relative = "/usr/local/lib" });
     exe.addCSourceFile(.{ .file = b.path("src/raygui_impl.c") });
@@ -28,21 +30,20 @@ pub fn build(b: *std.Build) void {
 
     const run_cmd = b.addRunArtifact(exe);
     run_cmd.step.dependOn(b.getInstallStep());
-    if (b.args) |args| {
-        run_cmd.addArgs(args);
-    }
-
+    if (b.args) |args| run_cmd.addArgs(args);
     const run_step = b.step("run", "Run the application");
     run_step.dependOn(&run_cmd.step);
 
     const test_exe = b.addTest(.{
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        }),
     });
 
     test_exe.linkSystemLibrary("sqlite3");
-    test_exe.linkLibC();
     test_exe.addIncludePath(.{ .cwd_relative = "/usr/local/include" });
     test_exe.addLibraryPath(.{ .cwd_relative = "/usr/local/lib" });
 

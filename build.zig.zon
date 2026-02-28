@@ -1,7 +1,7 @@
 .{
-    .name = .@"sqlitequery-zig",
+    .name = .sqlitequery,
     .version = "0.0.0",
-    .fingerprint = 0xa3b7c9d1e5f08264,
+    .fingerprint = 0xc2be8abf413f12c8,
     .minimum_zig_version = "0.15.2",
     .dependencies = .{},
     .paths = .{
