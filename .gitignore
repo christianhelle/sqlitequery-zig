@@ -1,0 +1,9 @@
+.zig-cache/
+zig-out/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+_codeql_detected_source_root
