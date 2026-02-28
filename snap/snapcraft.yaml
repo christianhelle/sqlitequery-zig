@@ -1,0 +1,68 @@
+name: sqlitequery
+base: core24
+version: "0.1.0"
+summary: Fast and lightweight SQLite database query analyzer
+description: |
+  SQLite Query Analyzer is a fast, cross-platform GUI and command-line tool
+  for browsing, querying and exporting SQLite databases.
+
+  Features:
+    - Immediate-mode SDL2 GUI with dark theme
+    - SQL query editor with syntax highlighting
+    - Table browser with scrollable data grid
+    - Schema viewer
+    - CSV export of all tables
+    - SQL script execution from the command line
+    - Session persistence (last database, query and window size)
+
+  Built with Zig 0.15 for maximum performance and minimal resource usage.
+
+grade: stable
+confinement: strict
+
+architectures:
+  - build-on: amd64
+
+parts:
+  sqlitequery:
+    plugin: nil
+    build-packages:
+      - wget
+      - xz-utils
+      - libsqlite3-dev
+      - libsdl2-dev
+      - libsdl2-ttf-dev
+    stage-packages:
+      - libsqlite3-0
+      - libsdl2-2.0-0
+      - libsdl2-ttf-2.0-0
+      - libfreetype6
+      - fonts-dejavu-core
+    override-build: |
+      set -e
+      # Download Zig 0.15.2
+      ZIG_VERSION="0.15.2"
+      ZIG_ARCH="x86_64"
+      ZIG_URL="https://ziglang.org/builds/zig-linux-${ZIG_ARCH}-${ZIG_VERSION}.tar.xz"
+      wget -q "${ZIG_URL}" -O /tmp/zig.tar.xz
+      tar -xf /tmp/zig.tar.xz -C /tmp
+      export PATH="/tmp/zig-linux-${ZIG_ARCH}-${ZIG_VERSION}:$PATH"
+
+      # Build release binary
+      cd "${SNAPCRAFT_PROJECT_DIR}"
+      zig build -Doptimize=ReleaseSafe
+      install -Dm755 zig-out/bin/sqlitequery "${SNAPCRAFT_PART_INSTALL}/bin/sqlitequery"
+
+apps:
+  sqlitequery:
+    command: bin/sqlitequery
+    extensions: [gnome]
+    plugs:
+      - home
+      - removable-media
+      - opengl
+      - x11
+      - wayland
+      - desktop
+      - desktop-legacy
+      - audio-playback
