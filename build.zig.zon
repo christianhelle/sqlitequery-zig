@@ -1,0 +1,15 @@
+.{
+    .name = .sqlitequery,
+    .fingerprint = 0xc2be8abf6cc83243,
+    .version = "0.1.0",
+    .minimum_zig_version = "0.15.0",
+    .dependencies = .{},
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "snap",
+        ".github",
+        "README.md",
+    },
+}
