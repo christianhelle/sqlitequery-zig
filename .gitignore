@@ -7,3 +7,4 @@ zig-cache/
 *.dylib
 *.dll
 *.exe
+_codeql_detected_source_root

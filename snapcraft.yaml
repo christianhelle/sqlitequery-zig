@@ -1,0 +1,83 @@
+name: sqlitequery
+base: core22
+version: 0.1.0
+summary: A fast SQLite Query Analyzer with GUI
+description: |
+  SQLite Query Analyzer is a fast and lightweight cross-platform tool
+  for querying and manipulating SQLite databases. Built with Zig and
+  raylib for maximum performance using immediate-mode rendering.
+  
+  Features:
+  - Open, query, and manipulate SQLite databases
+  - Immediate-mode GUI with dark/light themes
+  - Database schema browser (tree view)
+  - SQL query editor with execution
+  - Export data as CSV or SQL INSERT statements
+  - Export database schema as CREATE TABLE statements
+  - Session persistence (remembers last database and query)
+  - CLI mode for scripting and automation
+
+grade: stable
+confinement: strict
+
+apps:
+  sqlitequery:
+    command: bin/sqlitequery
+    plugs:
+      - home
+      - removable-media
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - opengl
+
+parts:
+  zig:
+    plugin: nil
+    build-packages:
+      - curl
+      - xz-utils
+    override-build: |
+      snap install zig --classic --beta
+
+  raylib:
+    plugin: nil
+    build-packages:
+      - curl
+    override-build: |
+      curl -sL https://github.com/raysan5/raylib/releases/download/5.5/raylib-5.5_linux_amd64.tar.gz -o /tmp/raylib.tar.gz
+      tar xzf /tmp/raylib.tar.gz -C /tmp
+      cp /tmp/raylib-5.5_linux_amd64/lib/libraylib.a /usr/local/lib/
+      cp /tmp/raylib-5.5_linux_amd64/lib/libraylib.so* /usr/local/lib/
+      cp /tmp/raylib-5.5_linux_amd64/include/*.h /usr/local/include/
+      curl -sL https://raw.githubusercontent.com/raysan5/raygui/master/src/raygui.h -o /usr/local/include/raygui.h
+      ldconfig
+
+  sqlitequery:
+    after: [zig, raylib]
+    plugin: nil
+    source: .
+    build-packages:
+      - libsqlite3-dev
+      - libglfw3-dev
+      - libgl1-mesa-dev
+      - libx11-dev
+      - libxrandr-dev
+      - libxi-dev
+      - libxinerama-dev
+      - libxcursor-dev
+    stage-packages:
+      - libc6
+      - libsqlite3-0
+      - libgl1
+      - libx11-6
+      - libxrandr2
+      - libxi6
+      - libxinerama1
+      - libxcursor1
+    override-build: |
+      export PATH="$SNAPCRAFT_STAGE/zig:$PATH"
+      zig build -Doptimize=ReleaseFast
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+      cp zig-out/bin/sqlitequery $SNAPCRAFT_PART_INSTALL/bin/
